@@ -6,8 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Login extends JFrame {
-    private JTextField usernameField;
-    private JPasswordField passwordField;
+    private final JTextField usernameField;
+    private final JPasswordField passwordField;
 
     public Login() {
         // Set frame properties
@@ -95,14 +95,31 @@ public class Login extends JFrame {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
 
-            // Simple login logic for demonstration purposes
-            if ("admin".equals(username) && "password".equals(password)) {
+            // Determine role using a separate method
+            String role = getRole(username, password);
+
+            if (role != null) {
                 JOptionPane.showMessageDialog(Login.this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 dispose(); // Close login window
-                new Dashboard().setVisible(true); // Replace with actual dashboard
+                new Dashboard(role).setVisible(true); // Pass role to Dashboard
             } else {
                 JOptionPane.showMessageDialog(Login.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
             }
+        }
+    }
+
+    // Extracted method to determine user role
+    private String getRole(String username, String password) {
+        if ("admin".equals(username) && "password".equals(password)) {
+            return "SuperAdmin";
+        } else if ("manager".equals(username) && "password".equals(password)) {
+            return "BranchManager";
+        } else if ("operator".equals(username) && "password".equals(password)) {
+            return "DataEntryOperator";
+        } else if ("cashier".equals(username) && "password".equals(password)) {
+            return "Cashier";
+        } else {
+            return null;
         }
     }
 

@@ -11,7 +11,7 @@ public class Dashboard extends JFrame {
 
         // Set frame properties
         setTitle("Dashboard - Metro POS System");
-        setSize(600, 400);
+        setSize(800, 600);
         setLocationRelativeTo(null); // Center on screen
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -21,28 +21,39 @@ public class Dashboard extends JFrame {
 
         // Add title label
         JLabel titleLabel = new JLabel("Welcome to Metro POS System", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
         titleLabel.setForeground(new Color(34, 139, 34)); // Dark green
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
+        // Create user role label
+        JLabel roleLabel = new JLabel("Role: " + userRole, SwingConstants.CENTER);
+        roleLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+        roleLabel.setForeground(Color.GRAY);
+        mainPanel.add(roleLabel, BorderLayout.SOUTH);
+
         // Create buttons panel
-        JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 1, 10, 10)); // Adjust grid for dynamic rows
         buttonPanel.setBackground(Color.WHITE);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
         // Add role-specific buttons
-        if ("SuperAdmin".equalsIgnoreCase(userRole)) {
-            addSuperAdminButtons(buttonPanel);
-        } else if ("BranchManager".equalsIgnoreCase(userRole)) {
-            addBranchManagerButtons(buttonPanel);
-        } else if ("DataEntryOperator".equalsIgnoreCase(userRole)) {
-            addDataEntryOperatorButtons(buttonPanel);
-        } else if ("Cashier".equalsIgnoreCase(userRole)) {
-            addCashierButtons(buttonPanel);
-        } else {
-            JLabel errorLabel = new JLabel("Invalid role: " + userRole, SwingConstants.CENTER);
-            errorLabel.setForeground(Color.RED);
-            buttonPanel.add(errorLabel);
+        switch (userRole.toLowerCase()) {
+            case "superadmin":
+                addSuperAdminButtons(buttonPanel);
+                break;
+            case "branchmanager":
+                addBranchManagerButtons(buttonPanel);
+                break;
+            case "dataentryoperator":
+                addDataEntryOperatorButtons(buttonPanel);
+                break;
+            case "cashier":
+                addCashierButtons(buttonPanel);
+                break;
+            default:
+                JLabel errorLabel = new JLabel("Invalid role: " + userRole, SwingConstants.CENTER);
+                errorLabel.setForeground(Color.RED);
+                buttonPanel.add(errorLabel);
         }
 
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
@@ -50,16 +61,15 @@ public class Dashboard extends JFrame {
     }
 
     private void addSuperAdminButtons(JPanel panel) {
-        JButton manageBranchesButton = new JButton("Manage Branches");
-        JButton reportsButton = new JButton("View Reports");
+        JButton manageBranchesButton = createButton("Manage Branches");
+        JButton reportsButton = createButton("View Reports");
 
         manageBranchesButton.addActionListener(e -> {
-            new SuperAdmin().setVisible(true); // Navigate to SuperAdmin screen
-            dispose();
+            JOptionPane.showMessageDialog(this, "Navigating to Branch Management (Feature Coming Soon)", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
 
         reportsButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Reports functionality coming soon!", "Info", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Generating Reports (Feature Coming Soon)", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
 
         panel.add(manageBranchesButton);
@@ -67,16 +77,15 @@ public class Dashboard extends JFrame {
     }
 
     private void addBranchManagerButtons(JPanel panel) {
-        JButton manageEmployeesButton = new JButton("Manage Employees");
-        JButton viewReportsButton = new JButton("View Reports");
+        JButton manageEmployeesButton = createButton("Manage Employees");
+        JButton viewReportsButton = createButton("View Reports");
 
         manageEmployeesButton.addActionListener(e -> {
-            new BranchManager("BR001").setVisible(true); // Replace "BR001" with the branch code
-            dispose();
+            JOptionPane.showMessageDialog(this, "Navigating to Employee Management (Feature Coming Soon)", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
 
         viewReportsButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Reports functionality coming soon!", "Info", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Generating Reports (Feature Coming Soon)", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
 
         panel.add(manageEmployeesButton);
@@ -84,17 +93,15 @@ public class Dashboard extends JFrame {
     }
 
     private void addDataEntryOperatorButtons(JPanel panel) {
-        JButton manageVendorsButton = new JButton("Manage Vendors");
-        JButton manageProductsButton = new JButton("Manage Products");
+        JButton manageVendorsButton = createButton("Manage Vendors");
+        JButton manageProductsButton = createButton("Manage Products");
 
         manageVendorsButton.addActionListener(e -> {
-            new DataEntryOperator().setVisible(true); // Navigate to DataEntryOperator screen
-            dispose();
+            JOptionPane.showMessageDialog(this, "Navigating to Vendor Management (Feature Coming Soon)", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
 
         manageProductsButton.addActionListener(e -> {
-            new DataEntryOperator().setVisible(true); // Navigate to product management
-            dispose();
+            JOptionPane.showMessageDialog(this, "Navigating to Product Management (Feature Coming Soon)", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
 
         panel.add(manageVendorsButton);
@@ -102,7 +109,7 @@ public class Dashboard extends JFrame {
     }
 
     private void addCashierButtons(JPanel panel) {
-        JButton processSalesButton = new JButton("Process Sales");
+        JButton processSalesButton = createButton("Process Sales");
 
         processSalesButton.addActionListener(e -> {
             new Cashier().setVisible(true); // Navigate to Cashier screen
@@ -110,6 +117,30 @@ public class Dashboard extends JFrame {
         });
 
         panel.add(processSalesButton);
+    }
+
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBackground(new Color(34, 139, 34)); // Dark green
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true));
+
+        // Hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(50, 205, 50)); // Lighter green
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(34, 139, 34)); // Dark green
+            }
+        });
+
+        return button;
     }
 
     public static void main(String[] args) {

@@ -2,8 +2,6 @@ package main;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +87,7 @@ public class Cashier extends JFrame {
                         JOptionPane.showMessageDialog(dialog, "Insufficient stock available.", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
                         // Add to cart and reduce inventory stock
-                        cart.add(new Product(product.getName(), product.getPrice(), quantity));
+                        cart.add(new Product(product.getName(), product.getPrice(), quantity, true));
                         product.reduceStock(quantity);
                         JOptionPane.showMessageDialog(dialog, "Product added to cart.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
@@ -145,54 +143,5 @@ public class Cashier extends JFrame {
         cashier.inventory.add(new Product("Orange", 1.2, 120));
 
         SwingUtilities.invokeLater(() -> cashier.setVisible(true));
-    }
-}
-
-// Helper class to represent a Product
-class Product {
-    private final String name;
-    private final double price;
-    private int stock;
-    private int quantity;
-
-    public Product(String name, double price, int stock) {
-        this.name = name;
-        this.price = price;
-        this.stock = stock;
-    }
-
-    public Product(String name, double price, int quantity) {
-        this.name = name;
-        this.price = price;
-        this.quantity = quantity;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public int getStock() {
-        return stock;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public double getTotalPrice() {
-        return price * quantity;
-    }
-
-    public void reduceStock(int amount) {
-        this.stock -= amount;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Name: %s, Price: %.2f, Stock: %d", name, price, stock);
     }
 }

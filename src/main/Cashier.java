@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cashier extends JFrame {
-    private final List<Product> inventory = new ArrayList<>();
-    private final DefaultTableModel cartTableModel;
+    private final List<Product> inventory = new ArrayList<>(); // Inventory to manage stock
+    private final DefaultTableModel cartTableModel; // Table model for cart
 
     public Cashier() {
         // Set frame properties
@@ -17,23 +17,23 @@ public class Cashier extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Create main panel
+        // Main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
 
-        // Add title label
+        // Title label
         JLabel titleLabel = new JLabel("Cashier Dashboard", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
         titleLabel.setForeground(new Color(34, 139, 34)); // Dark green
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
-        // Create cart table
+        // Cart table
         cartTableModel = new DefaultTableModel(new String[]{"Name", "Price", "Quantity", "Discount (%)", "Total"}, 0);
         JTable cartTable = new JTable(cartTableModel);
         JScrollPane scrollPane = new JScrollPane(cartTable);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Create buttons panel
+        // Buttons panel
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -116,7 +116,6 @@ public class Cashier extends JFrame {
         });
 
         cancelButton.addActionListener(e -> dialog.dispose());
-
         dialog.setVisible(true);
     }
 
@@ -163,33 +162,5 @@ public class Cashier extends JFrame {
         cashier.inventory.add(new Product("Orange", 1.2, 120));
 
         SwingUtilities.invokeLater(cashier::setVisible);
-    }
-}
-
-class Product {
-    private final String name;
-    private final double price;
-    private int stock;
-
-    public Product(String name, double price, int stock) {
-        this.name = name;
-        this.price = price;
-        this.stock = stock;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public int getStock() {
-        return stock;
-    }
-
-    public void reduceStock(int quantity) {
-        this.stock -= quantity;
     }
 }

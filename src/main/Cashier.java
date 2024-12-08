@@ -1,19 +1,20 @@
 package main;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cashier extends JFrame {
-    private final List<Product> cart = new ArrayList<>(); // Cart to hold purchased items
-    private final List<Product> inventory = new ArrayList<>(); // Inventory to manage stock
+    private final List<Product> inventory = new ArrayList<>();
+    private final DefaultTableModel cartTableModel;
 
     public Cashier() {
         // Set frame properties
         setTitle("Cashier - Metro POS System");
-        setSize(600, 400);
-        setLocationRelativeTo(null); // Center on screen
+        setSize(800, 600);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Create main panel
@@ -22,27 +23,36 @@ public class Cashier extends JFrame {
 
         // Add title label
         JLabel titleLabel = new JLabel("Cashier Dashboard", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
         titleLabel.setForeground(new Color(34, 139, 34)); // Dark green
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
+        // Create cart table
+        cartTableModel = new DefaultTableModel(new String[]{"Name", "Price", "Quantity", "Discount (%)", "Total"}, 0);
+        JTable cartTable = new JTable(cartTableModel);
+        JScrollPane scrollPane = new JScrollPane(cartTable);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
         // Create buttons panel
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Add buttons
-        JButton addProductButton = new JButton("Add Product to Cart");
+        JButton addProductButton = new JButton("Add Product");
         JButton generateBillButton = new JButton("Generate Bill");
+        JButton clearCartButton = new JButton("Clear Cart");
+
         buttonPanel.add(addProductButton);
         buttonPanel.add(generateBillButton);
+        buttonPanel.add(clearCartButton);
 
-        mainPanel.add(buttonPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
         add(mainPanel);
 
-        // Action listeners
+        // Add action listeners
         addProductButton.addActionListener(e -> showAddProductDialog());
         generateBillButton.addActionListener(e -> generateBill());
+        clearCartButton.addActionListener(e -> cartTableModel.setRowCount(0));
     }
 
     private void showAddProductDialog() {
@@ -50,80 +60,91 @@ public class Cashier extends JFrame {
         JDialog dialog = new JDialog(this, "Add Product to Cart", true);
         dialog.setSize(400, 300);
         dialog.setLocationRelativeTo(this);
-        dialog.setLayout(new GridLayout(3, 2, 10, 10));
+        dialog.setLayout(new GridLayout(4, 2, 10, 10));
 
-        // Form fields
         JTextField productNameField = new JTextField();
         JTextField quantityField = new JTextField();
+        JTextField discountField = new JTextField();
 
-        // Add components
         dialog.add(new JLabel("Product Name:"));
         dialog.add(productNameField);
         dialog.add(new JLabel("Quantity:"));
         dialog.add(quantityField);
+        dialog.add(new JLabel("Discount (%):"));
+        dialog.add(discountField);
 
-        // Buttons
-        JButton addButton = new JButton("Add to Cart");
+        JButton addButton = new JButton("Add");
         JButton cancelButton = new JButton("Cancel");
         dialog.add(addButton);
         dialog.add(cancelButton);
 
-        // Add button action
         addButton.addActionListener(e -> {
             String productName = productNameField.getText();
             String quantityText = quantityField.getText();
+            String discountText = discountField.getText();
 
-            if (productName.isEmpty() || quantityText.isEmpty()) {
+            if (productName.isEmpty() || quantityText.isEmpty() || discountText.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "All fields are required.", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                try {
-                    int quantity = Integer.parseInt(quantityText);
+                return;
+            }
 
-                    // Check inventory for the product
-                    Product product = findProductInInventory(productName);
-                    if (product == null) {
-                        JOptionPane.showMessageDialog(dialog, "Product not found in inventory.", "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if (product.getStock() < quantity) {
-                        JOptionPane.showMessageDialog(dialog, "Insufficient stock available.", "Error", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        // Add to cart and reduce inventory stock
-                        cart.add(new Product(product.getName(), product.getPrice(), quantity, true));
-                        product.reduceStock(quantity);
-                        JOptionPane.showMessageDialog(dialog, "Product added to cart.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        dialog.dispose();
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(dialog, "Invalid quantity value.", "Error", JOptionPane.ERROR_MESSAGE);
+            try {
+                int quantity = Integer.parseInt(quantityText);
+                double discount = Double.parseDouble(discountText);
+
+                Product product = findProductInInventory(productName);
+                if (product == null) {
+                    JOptionPane.showMessageDialog(dialog, "Product not found in inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (product.getStock() < quantity) {
+                    JOptionPane.showMessageDialog(dialog, "Insufficient stock available.", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    double discountedPrice = product.getPrice() - (product.getPrice() * discount / 100);
+                    double total = discountedPrice * quantity;
+
+                    // Add to table
+                    cartTableModel.addRow(new Object[]{productName, product.getPrice(), quantity, discount, total});
+
+                    // Reduce inventory stock
+                    product.reduceStock(quantity);
+
+                    JOptionPane.showMessageDialog(dialog, "Product added to cart.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    dialog.dispose();
                 }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Invalid quantity or discount value.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        // Cancel button action
         cancelButton.addActionListener(e -> dialog.dispose());
 
         dialog.setVisible(true);
     }
 
     private void generateBill() {
-        if (cart.isEmpty()) {
+        if (cartTableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "No products in the cart.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         StringBuilder bill = new StringBuilder("Bill Details:\n\n");
-        double total = 0;
+        double grandTotal = 0;
 
-        for (Product product : cart) {
-            bill.append(String.format("%s - %d x %.2f = %.2f\n",
-                    product.getName(), product.getQuantity(), product.getPrice(), product.getTotalPrice()));
-            total += product.getTotalPrice();
+        for (int i = 0; i < cartTableModel.getRowCount(); i++) {
+            String name = (String) cartTableModel.getValueAt(i, 0);
+            double price = (double) cartTableModel.getValueAt(i, 1);
+            int quantity = (int) cartTableModel.getValueAt(i, 2);
+            double discount = (double) cartTableModel.getValueAt(i, 3);
+            double total = (double) cartTableModel.getValueAt(i, 4);
+
+            bill.append(String.format("%s - %d x %.2f (%.1f%% off) = %.2f\n", name, quantity, price, discount, total));
+            grandTotal += total;
         }
 
-        bill.append("\nTotal: ").append(String.format("%.2f", total));
+        bill.append("\nGrand Total: ").append(String.format("%.2f", grandTotal));
         JOptionPane.showMessageDialog(this, bill.toString(), "Bill Generated", JOptionPane.INFORMATION_MESSAGE);
 
-        // Clear the cart after generating the bill
-        cart.clear();
+        // Clear the cart
+        cartTableModel.setRowCount(0);
     }
 
     private Product findProductInInventory(String productName) {
@@ -136,12 +157,39 @@ public class Cashier extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Initialize inventory (sample data)
         Cashier cashier = new Cashier();
         cashier.inventory.add(new Product("Apple", 1.5, 100));
         cashier.inventory.add(new Product("Banana", 0.8, 150));
         cashier.inventory.add(new Product("Orange", 1.2, 120));
 
-        SwingUtilities.invokeLater(() -> cashier.setVisible(true));
+        SwingUtilities.invokeLater(cashier::setVisible);
+    }
+}
+
+class Product {
+    private final String name;
+    private final double price;
+    private int stock;
+
+    public Product(String name, double price, int stock) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void reduceStock(int quantity) {
+        this.stock -= quantity;
     }
 }

@@ -1,9 +1,10 @@
-package main.utils;
+package utils;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 import javax.swing.*;
 import java.util.Map;
@@ -36,10 +37,10 @@ public class ReportGenerator {
 
     // Generate a pie chart for product distribution
     public static void generatePieChart(String title, Map<String, Double> data) {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        DefaultPieDataset dataset = new DefaultPieDataset();
 
         for (Map.Entry<String, Double> entry : data.entrySet()) {
-            dataset.addValue(entry.getValue(), "Products", entry.getKey());
+            dataset.setValue(entry.getKey(), entry.getValue());
         }
 
         JFreeChart chart = ChartFactory.createPieChart(title, dataset, true, true, false);

@@ -14,7 +14,7 @@ public class Cashier extends JFrame {
         // Set frame properties
         setTitle("Cashier - Metro POS System");
         setSize(800, 600);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null); // Center the frame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Main panel
@@ -52,7 +52,16 @@ public class Cashier extends JFrame {
         // Add action listeners
         addProductButton.addActionListener(e -> showAddProductDialog());
         generateBillButton.addActionListener(e -> generateBill());
-        clearCartButton.addActionListener(e -> cartTableModel.setRowCount(0));
+        clearCartButton.addActionListener(e -> cartTableModel.setRowCount(0)); // Clear cart
+
+        // Initialize inventory
+        initializeInventory();
+    }
+
+    private void initializeInventory() {
+        inventory.add(new Product("Apple", 1.5, 100));
+        inventory.add(new Product("Banana", 0.8, 150));
+        inventory.add(new Product("Orange", 1.2, 120));
     }
 
     private void showAddProductDialog() {
@@ -156,11 +165,9 @@ public class Cashier extends JFrame {
     }
 
     public static void main(String[] args) {
-        Cashier cashier = new Cashier();
-        cashier.inventory.add(new Product("Apple", 1.5, 100));
-        cashier.inventory.add(new Product("Banana", 0.8, 150));
-        cashier.inventory.add(new Product("Orange", 1.2, 120));
-
-        SwingUtilities.invokeLater(cashier::setVisible);
+        SwingUtilities.invokeLater(() -> {
+            Cashier cashier = new Cashier();
+            cashier.setVisible(true); // Display the frame
+        });
     }
 }

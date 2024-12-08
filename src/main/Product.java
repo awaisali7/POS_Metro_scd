@@ -1,29 +1,49 @@
-package main;
+=package main;
 
 public class Product {
-    private final String name;
-    private final double price;
+    private int id;
+    private String name;
+    private String category;
+    private double originalPrice;
+    private double salePrice;
     private int stock;
 
-    public Product(String name, double price, int stock) {
+    public Product(int id, String name, String category, double originalPrice, double salePrice, int stock) {
+        this.id = id;
         this.name = name;
-        this.price = price;
+        this.category = category;
+        this.originalPrice = originalPrice;
+        this.salePrice = salePrice;
         this.stock = stock;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
-    public double getPrice() {
-        return price;
+    public String getCategory() {
+        return category;
+    }
+
+    public double getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public double getSalePrice() {
+        return salePrice;
     }
 
     public int getStock() {
         return stock;
     }
 
-    public void reduceStock(int quantity) {
-        this.stock -= quantity;
+    @Override
+    public String toString() {
+        return String.format("ID: %d, Name: %s, Category: %s, Price: %.2f, Stock: %d",
+                id, name, category, salePrice, stock);
     }
 }
